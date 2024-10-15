@@ -1650,9 +1650,30 @@ $(document).ready(function() {
 		//console.log(event);
 		if (event.target.className.indexOf('mycircle')>=0){mapcircle=1;}
 		if (event.shiftKey && mapcircle==1 && !gsize){
+			let elem=$(event.target);
 			//хотим изменить маркер
 			var desc = prompt("Описание:", event.target.title) || event.target.title;
 			if (desc != null) {
+				let sibs=elem.parent().find('.mycircle');
+				numprof=sibs.index(elem);
+				//также запишем в профиль
+				if (self[Profiles[profileIndex].pointarr][numprof].Name==event.target.title){
+					//старое описание совпадает
+					self[Profiles[profileIndex].pointarr][numprof].Name=desc;
+				}
+				else{
+					console.log('ошибка, описание не совпадает '+self[Profiles[profileIndex].pointarr][numprof].Name);
+					//либо придется искать новое
+					numprof=self[Profiles[profileIndex].pointarr][numprof].findIndex(user => user.Name == event.target.title)
+					if (numprof){
+						console.log('нашел новую точку '+self[Profiles[profileIndex].pointarr][numprof].Name);
+						self[Profiles[profileIndex].pointarr][numprof].Name=desc;
+					}
+					else
+					{
+						console.log('повторно ничего не нашел ');
+					}
+				}
 				event.target.title=desc;
 			}
 		}
