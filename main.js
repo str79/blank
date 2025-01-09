@@ -432,21 +432,22 @@ $(document).ready(function() {
 		}
 	}
 	function UpdateCountGr(group=null){
-		let cnt;
-		let elemText;
-		let preg=/\(\d*\)/;
-		let curElem;
+		var cnt;
+		var elemText;
+		var preg=/\([\d\/]*\)/;
+		var curElem;
+		var curcnt=0;
+		
 		if (group!==null){
-			curElem=$('.maingroups .list-group-item').eq(group)
-			cnt=curElem.find('.list-group-item-text.active').length;
+			curElem=$('.maingroups .list-group-item').eq(group);
+			curcnt=curElem.find('.list-group-item-text').not('.active').length;
+			cnt=curElem.find('.list-group-item-text').length;
+			//cnt=curElem.find('.list-group-item-text.active').length;
 			elemText=curElem.find('.list-group-item-heading .text').html();
 			if (elemText.match(preg)){
-				elemText=elemText.replace(preg,'('+cnt+')');
+				elemText=elemText.replace(preg,'');
 			}
-			else
-			{
-				elemText+=' ('+cnt+')';
-			}
+			elemText+=' ('+curcnt+'/'+cnt+')';
 			curElem.find('.list-group-item-heading .text').html(elemText);
 		}
 		else{
@@ -457,6 +458,38 @@ $(document).ready(function() {
 				i++;
 			});
 		}
+		
+		//также обновляем историю
+		curElem=$('.maingroups .list-group-item.autohist');
+		elemText=curElem.find('.list-group-item-heading .text');
+		var newElText=elemText.html();
+		if (newElText.match(preg)){
+			//удаляем старое значение
+			newElText=newElText.replace(preg,'').trim();
+		}
+		
+		/* узнаем к-во*/
+		//cnt - общее
+		//curcnt - текущего профиля
+		var tmparr;
+		cnt=globhist.length;
+		curcnt=0;
+		curcnt=curElem.find('.list-group-item-text').length;
+		//более затратный метод
+		/*curcnt = globhist.reduce(function(sum, current) {
+			tmparr=current.split(profSym);
+			if (tmparr[1]==self['Profiles'][profileIndex].pointarr){
+				//текущий профиль
+				return sum + 1;
+			}
+			return sum;
+		}, 0);*/
+		/* узнаем к-во*/
+		
+		//добавляем новое значение
+		newElText+=' ('+curcnt+'/'+cnt+')';
+		elemText.html(newElText);
+		
 	}
 	function ChangePointIdex(StartIndex){
 		if (StartIndex){
@@ -681,29 +714,29 @@ $(document).ready(function() {
 			//сортируем массив ключей профиля в историческом порядке
 			var arrsort=[];
 			for (nindex in Profiles) {
-			//Profiles[nindex].pointarr
-			tmpsort=Object.keys(self[Profiles[nindex].pointarr]);
-			//дополняем
-			for (tmppoint in tmpsort) {
-				tmpsort[tmppoint]=preId+(Number(tmpsort[tmppoint])+Profiles[nindex].StartIndex)+profSym+Profiles[nindex].pointarr;
-			}
-			//сортируем индексы
-			//инвертируем в случае отсутствия значения в истории - те, которых нет в истории сдвинутся вперед
-			//2-3, -(-1-3)=4,-(2--3)=5,-(-1--1)=0, числа положительные, значит больше и пойдут в конец массива
-			tmpsort.sort((a, b) => ((globhist.indexOf(a)<0 || globhist.indexOf(b)<0)?-(globhist.indexOf(a) - globhist.indexOf(b)):(globhist.indexOf(a) - globhist.indexOf(b))));
-			//Переделываем историю
-			for (tmppoint in tmpsort) {
-				tmppos=globhist.indexOf(tmpsort[tmppoint]);
-				if (tmppos>=0){
-					newGlobhist[tmppos]=preId+(Number(tmppoint)+Profiles[nindex].StartIndex)+profSym+Profiles[nindex].pointarr;
-				}					
-			}
-			//удаляем дополнения
-			for (tmppoint in tmpsort) {
-				tmpsort[tmppoint]=(Number(tmpsort[tmppoint].split(profSym)[0].replace(preId,''))-Profiles[nindex].StartIndex);
-			}
-			//tmparr=newid.split(profSym);
-			arrsort[nindex]=tmpsort;
+				//Profiles[nindex].pointarr
+				tmpsort=Object.keys(self[Profiles[nindex].pointarr]);
+				//дополняем
+				for (tmppoint in tmpsort) {
+					tmpsort[tmppoint]=preId+(Number(tmpsort[tmppoint])+Profiles[nindex].StartIndex)+profSym+Profiles[nindex].pointarr;
+				}
+				//сортируем индексы
+				//инвертируем в случае отсутствия значения в истории - те, которых нет в истории сдвинутся вперед
+				//2-3, -(-1-3)=4,-(2--3)=5,-(-1--1)=0, числа положительные, значит больше и пойдут в конец массива
+				tmpsort.sort((a, b) => ((globhist.indexOf(a)<0 || globhist.indexOf(b)<0)?-(globhist.indexOf(a) - globhist.indexOf(b)):(globhist.indexOf(a) - globhist.indexOf(b))));
+				//Переделываем историю
+				for (tmppoint in tmpsort) {
+					tmppos=globhist.indexOf(tmpsort[tmppoint]);
+					if (tmppos>=0){
+						newGlobhist[tmppos]=preId+(Number(tmppoint)+Profiles[nindex].StartIndex)+profSym+Profiles[nindex].pointarr;
+					}					
+				}
+				//удаляем дополнения
+				for (tmppoint in tmpsort) {
+					tmpsort[tmppoint]=(Number(tmpsort[tmppoint].split(profSym)[0].replace(preId,''))-Profiles[nindex].StartIndex);
+				}
+				//tmparr=newid.split(profSym);
+				arrsort[nindex]=tmpsort;
 			}
 			//на выходе получаем массив нужного профиля с индексами в нужном порядке
 			//update history
@@ -1160,7 +1193,7 @@ $(document).ready(function() {
 		let zobj=this.dataset.action;
 		let el=$(this);
 		
-		el.toggleClass('active');
+		
 		self[zobj]=1-self[zobj];
 		
 		if (el.hasClass('active')){
@@ -1198,6 +1231,8 @@ $(document).ready(function() {
 				drawLinesOn();
 			}
 		}
+		
+		el.toggleClass('active');
 	})
 	$('.drawingToolsSetup .drawSetItem').on('click',function(e){
 		//left click
@@ -2245,7 +2280,8 @@ $(document).ready(function() {
 		var el=$(this);
 		var par=el.parent(); //.list-group-item-text
 		var groupnum=par.data('group');
-		if (par.hasClass('active')){
+		var parActive=par.hasClass('active');
+		if (parActive){
 			//Скрываем
 			par.removeClass('active');
 			$('#'+par.data('id')).addClass('hide');
@@ -2284,37 +2320,36 @@ $(document).ready(function() {
 			}
 			else
 			{
-				//it is history - unclick from other
-				var flylist=$('#flylist .list-group-item-text').not(par);
-				var parid=par.data('id');
-				let histprof=par.data('prof');
-				if (profileIndex==histprof){
-					flylist.each(function(){
-						if ($(this).data('id')==parid){
-							$(this).removeClass('active');
-						}
-					});
-				}
 			}
 		}
 		else
 		{
 			par.addClass('active');
 			$('#'+par.data('id')).removeClass('hide');
-			if (par.parent().hasClass('autohist')){
-				//it is history - ununclick from other
-				var flylist=$('#flylist .list-group-item-text').not(par);
-				var parid=par.data('id');
-				var histprof=par.data('prof');
-				if (profileIndex==histprof){
-					flylist.each(function(){
-						if ($(this).data('id')==parid){
+		}
+		
+		if (par.parent().hasClass('autohist')){
+			
+			var flylist=$('#flylist .list-group-item-text').not(par);
+			var parid=par.data('id');
+			var histprof=par.data('prof');
+			if (profileIndex==histprof){
+				flylist.each(function(){
+					if ($(this).data('id')==parid){
+						if (parActive){
+							//it is history - unclick from other
+							$(this).removeClass('active');
+						}
+						else
+						{
+							//it is history - ununclick from other
 							$(this).addClass('active');
 						}
-					});
-				}
+					}
+				});
 			}
 		}
+		
 		UpdateCountGr(groupnum);
 	});
 	$('#flylist').on('click','.autohist .list-group-item-text',function(e){
