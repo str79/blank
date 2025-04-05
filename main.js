@@ -692,12 +692,15 @@ $(document).ready(function() {
 		$('.mainfly').toggleClass('hide');
 	});
 	function addslashes( str ) {
-		var slash="\\";
+		var slash='\\';
 		//return (str + '').replace(/[\\"']/g, '\\$&').replace(/\u0000/g, '\\0');
 		//return str.replace('/(["\'\])/g', "\\$1").replace('/\0/g', "\\0");
 		//return str.replace(/(["'\/])/g, slash.charAt(0)+"$1");
 		//проблема только при переводе
-		return str.replace(/(["'\/])/g, slash+"$1");
+		//str=str.replace(/\/'/g, slash+"$1");
+		return str.replace(/\\'/g, "'").replace(/(')/g, slash+"$1");
+		//.replace(/[']/g, slash);
+		//return str.replace(/[']/g, slash);
 	}
 	$('#flylist > .container > h2').on('click',function(event){
 		if (event.ctrlKey){
