@@ -56,6 +56,8 @@ $(document).ready(function() {
 		"routeShow":82,
 		"drawLines":76,
 		"keymove":75,
+		"gmove":77,
+		"gsize":90,
 	};//Ассоциативный массив стандартных настроек назначений кнопок
 	var usedKeys={};//Ассоциативный массив применяемых настроек назначений кнопок
 	
@@ -124,7 +126,7 @@ $(document).ready(function() {
 			let strkey=translateKeyNum(usedKeys[elKey]);
 			if (strkey){
 				let elmenu=menuaction.filter('[data-action='+elKey+']')
-				elmenu.find('.hotkey').text(strkey);
+				elmenu.find('.hotkey').text(' ('+strkey+')');
 			}
 		}
 	}
@@ -243,6 +245,7 @@ $(document).ready(function() {
 		var lanobj=$(document.body).find('.langCh');
 		var langKey;
 		var oldlangstr;
+		//по каждому элементу
 		lanobj.each(function(){
 			var el=$(this);
 			var langOld=0;
@@ -334,7 +337,7 @@ $(document).ready(function() {
 				if (elRoute.hasClass('active')){
 					elRoute.removeClass('active');
 				}
-				self[zobj]=0
+				self[zobj]=0;
 				DeleteRoute();
 				//CreateRoute();
 			}			
@@ -916,6 +919,7 @@ $(document).ready(function() {
 		var key = event.which || event.keyCode;
 		var el=$(event.target);
 		
+		//Настройка кнопок управления
 		if (keyBinging>=0){
 			var allSibs=$('#setupDlg .list-group-item');
 			console.log(key);
