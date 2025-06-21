@@ -535,9 +535,10 @@ body .mycircle.hide{
 body.mobile{
 	/*overflow: auto;	*/
 }
-.mobile .mainfly{
+.mobile #flyProf .mainfly{
 	max-width: 100vw;
     overflow: scroll;
+	max-height:calc(100vh - 6.6em - 50px)
 }
 .mobile .container{
 	padding: 0;	
@@ -546,6 +547,10 @@ body.mobile{
 	z-index: 3;
 	max-width: 100vw;
     overflow: scroll;
+	
+}
+.mobile #flylist .maingroups
+	max-height:calc(100vh - 360px - 124px)
 }
 .mobile #flylist .text{
 	white-space: normal;
