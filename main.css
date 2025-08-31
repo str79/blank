@@ -435,9 +435,9 @@ body .mycircle.hide{
 }
 #setupDlg{
 	position: absolute;
-	left: 30%;
+	left: 37%;
 	z-index: 2;
-	top:40%;
+	top:20%;
 }
 #setupDlg .gsetup{
 	/*align-items: flex-start;*/

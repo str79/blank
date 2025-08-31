@@ -32,6 +32,8 @@ var langStr={
 	SETUPDLG_GSIZE:'Глобальный размер',
 	SETUPDLG_ROUTESHOW:'Показать маршрут',
 	SETUPDLG_DRAWLINES:'Рисование линий',
+	SETUPDLG_DEC:'Уменьшить',
+	SETUPDLG_INC:'Увеличить',
 	CONTMENU:'Меню метки',
 	CONTMENU_CHGROUP:'Сменить группу',
 	CONTMENU_DELPOINT:'Удалить',

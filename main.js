@@ -60,16 +60,18 @@ $(document).ready(function() {
 		"keymove":75,
 		"gmove":77,
 		"gsize":90,
+		//open bracket	219
+		"drawDec":219,
+		//close bracket	221
+		"drawInc":221,
+		
 	};//Ассоциативный массив стандартных настроек назначений кнопок
-	var usedKeys={};//Ассоциативный массив применяемых настроек назначений кнопок
+	var usedKeys={};//Ассоциативный массив текущих настроек назначений кнопок
 	var detMob=0;//Мобильное ли устройство
 	var isDragging = false; //события перемещения картинки, для мобильных нажатий, фикс. отмены перетаскивания
 	var tapCount = 0; //к-во нажатий, имитация dbl click для мобильников
 	var tapTimer=null; //тоже таймер для dbl click
-	
 	preinit();
-	
-	
 	function preinit(){
 		//определить что мобильный
 		if (detectMob()){
@@ -105,9 +107,9 @@ $(document).ready(function() {
 			//console.log(result1);
 			init();
 		})
+		
 	}
 	function init(){
-		
 		//Загрузка истории
 		loadHistory();
 		//загрузка игнор листа
@@ -133,6 +135,7 @@ $(document).ready(function() {
 		});
 	}
 	function setupCustomKeys(){
+		//обновление отображения
 		//в настройке
 		var strkey;
 		$('#setupDlg .list-group-item').each(function(){
@@ -230,16 +233,21 @@ $(document).ready(function() {
 		//load sctipt
 		mapSettings = document.createElement('script');
 		mapSettings.src = path;
+		document.body.append(mapSettings);	
 		//wait
 		return new Promise((resolve, reject) => {
-			mapSettings.onload = function() {
-				resolve("maps/profiles loaded");
+			
+			mapSettings.onload = () => {
 				if (typeof(Profiles)=='undefined'){
 					//хотя-бы пустой массив
 					Profiles=[];
-				}
+				};
+				resolve('Скрипт карт загружен');
+			};
+			mapSettings.onerror = () => {
+				console.log('Ошибка загрузки карт/профилей');
+				reject(new Error('Ошибка загрузки скрипта карт'));
 			}
-			document.body.append(mapSettings);
 		});
 	}
 	function langSelect(langdir){
@@ -519,7 +527,7 @@ $(document).ready(function() {
 	function addLastCss(selector,propStr){
 		var Helpname='helperStyle';
 		var sheets = document.styleSheets;
-        var styleEl='';
+		var styleEl='';
 		var styleSheet;
 		for( var i in document.styleSheets ){
 			if( sheets[i].title && sheets[i].title.indexOf(Helpname) > -1 ) {
@@ -1016,14 +1024,14 @@ $(document).ready(function() {
 		}
 		if (typeof(routeShow)!='undefined' && routeShow){
 			let changes=0;
-			if(key==219){
+			if (key==usedKeys['drawDec']){	
 				//open bracket	219	[
 				if (defRouteCount>3){
 					defRouteCount-=1;
 					changes=1;
 				}
 			}
-			if(key==221){
+			if (key==usedKeys['drawInc']){	
 				//close bracket	221	]
 				let maxCnt=$('#mainpic .mycircle').length;
 				if (defRouteCount<maxCnt){
@@ -1039,6 +1047,28 @@ $(document).ready(function() {
 			}
 			//если не было изменений, то проверка продолжается
 		}
+		if (circlept){
+			//console.log(event.keyCode);
+			//[] - увеличивает/уменьшает всё, тут только полотно в инфо прямоугольнике.
+			//if (event.keyCode==219 || event.keyCode==91 || event.keyCode==1093){
+			if (key==usedKeys['drawDec']){	
+				//minus
+				//console.log('minus');
+				if (maptarget){
+					maptarget.width(parseInt(maptarget.width())-10);
+					maptarget.height(parseInt(maptarget.height())-10);
+				}
+			}
+			else if (key==usedKeys['drawInc']){	
+				//plus
+				//console.log('plus');
+				if (maptarget){
+					maptarget.width(parseInt(maptarget.width())+10);
+					maptarget.height(parseInt(maptarget.height())+10);
+				}
+			}
+		}
+		
 		if (typeof(keymove)!='undefined' && keymove && typeof(lastId)!='undefined'){
 			var obj=$('#'+lastId);
 			var objleft=parseInt(obj.css('left'));
@@ -1098,29 +1128,7 @@ $(document).ready(function() {
 			event.preventDefault();
 			return;
 		}
-		if (circlept){
-			//console.log(event.keyCode);
-			//[] - увеличивает/уменьшает всё, тут только полотно в инфо прямоугольнике.
-			if (event.keyCode==219 || event.keyCode==91 || event.keyCode==1093){
-				//minus
-				//console.log('minus');
-				if (maptarget){
-					maptarget.width(parseInt(maptarget.width())-10);
-					maptarget.height(parseInt(maptarget.height())-10);
-				}
-			}
-			else if (event.keyCode==221 || event.keyCode==93 || event.keyCode==1098){
-				//plus
-				//console.log('plus');
-				if (maptarget){
-					maptarget.width(parseInt(maptarget.width())+10);
-					maptarget.height(parseInt(maptarget.height())+10);
-				}
-			}
-		}
-		else{
-			console.log(event.keyCode);
-		}
+		//console.log(event.keyCode);
 	})
 	$('#flyProf').on('click','.menuaction',function(event){
 		$('#flycMenu').toggleClass('hide').css({'left':$('body').width()-$('#flycMenu').width()-parseInt($('.container').css('padding-right'))-$('.mainfly').width(),'top':$(this).offset().top});
@@ -1323,34 +1331,43 @@ $(document).ready(function() {
 		//Сжать
 		//var el=$(event.target);
 		var newrect={'left':999999,'top':999999,'right':0,'bottom':0};
-		var tmpel={};
-		var newpoint={'x':0,'y':0};
+		var tmpel={}; //временный массив
+		var newpoint={'x':0,'y':0}; //конечные координаты
 		var compressArr;
+		var mapPic=document.getElementById('mainpic');
 		if (selectedArr.length){
 			compressArr=selectedArr;
 		}
 		else{
 			compressArr=$('#mainpic .mycircle').not('.hide');
 		}
-		$(compressArr).each(function(){
+		//вычисляем среднюю точку
+		/*$(compressArr).each(function(){
 			//tmpel=$(this).offset();
 			tmpel.left=parseInt($(this).css('left'))
 			tmpel.top=parseInt($(this).css('top'))
 			if (newrect.left >= tmpel.left){
-				newrect.left = tmpel.left;
+			newrect.left = tmpel.left;
 			}
 			if (newrect.top >= tmpel.top){
-				newrect.top = tmpel.top;
+			newrect.top = tmpel.top;
 			}
 			if (newrect.right <= tmpel.left){
-				newrect.right = tmpel.left;
+			newrect.right = tmpel.left;
 			}
 			if (newrect.bottom <= tmpel.top){
-				newrect.bottom = tmpel.top;
+			newrect.bottom = tmpel.top;
 			}
-		});
-		newpoint.x=parseInt(newrect.left+(newrect.right-newrect.left)/2);
-		newpoint.y=parseInt(newrect.top+(newrect.bottom-newrect.top)/2);
+		});*/
+		newrect.left=document.getElementById('mainpic').offsetLeft;
+		newrect.lef=document.getElementById('mainpic').offsetLeft;
+		//document.getElementById('mainpic').offsetWidth
+		//offsetHeight
+		//newpoint.x=parseInt(newrect.left+(newrect.right-newrect.left)/2);
+		//newpoint.y=parseInt(newrect.top+(newrect.bottom-newrect.top)/2);
+		newpoint.x=parseInt(mapPic.clientWidth/2);
+		newpoint.y=parseInt(mapPic.clientHeight/2);
+		//возможно просто среднюю на карте
 		$(compressArr).each(function(){
 			this.style.left=newpoint.x+'px';
 			this.style.top=newpoint.y+'px';
@@ -1731,7 +1748,8 @@ $(document).ready(function() {
 		var tmpGroup;
 		//ищем прошлую группу в pointsarr по номеру и от туда берем номер группы
 		try {
-			tmpGroup=$.parseJSON(pointsarr[numi].Groups);
+			//сама точка ищется правильно, а вот в pointsarr там отсчет с 0
+			tmpGroup=$.parseJSON(pointsarr[numi-1].Groups);
 			tmpGroup=(tmpGroup.length)?tmpGroup[0]:0;
 		}
 		catch(e) {
@@ -1756,7 +1774,7 @@ $(document).ready(function() {
 					UpdateCountGr(tmpGroup);
 					UpdateCountGr(group);
 					//А также обновляем сведениия в pointsarr
-					pointsarr[numi].Groups='['+group+']';
+					pointsarr[numi-1].Groups='['+group+']';
 					//А также меняем класс точки
 					objMetka.removeClass('cg'+tmpGroup).addClass('cg'+group);
 					//убираем меню
@@ -1857,7 +1875,6 @@ $(document).ready(function() {
 			//удаляем её из истории - не сильно надо.
 		}
 	});
-	
 	$('#mainpic').on('touchstart',function(e){
 		isDragging = true;
 		e.preventDefault(); // Блокируем стандартное поведение
@@ -1871,16 +1888,12 @@ $(document).ready(function() {
 	$('#mainpic').on('touchend',function(e){
 		isDragging = false;
 	});
-	
-	
-	
 	//mousedown
 	$('#mainpic').on('pointerdown',function(event){
 		var searchstr='';
 		$('#flycMenu').addClass('hide');
 		$('#flyaoMenu').addClass('hide');
 		//console.log(event);
-		
 		//просто сбор периодичности кликов для имитации dblclick на мобиле
 		tapCount++;
 		if (tapCount === 2) {
@@ -1896,37 +1909,28 @@ $(document).ready(function() {
 			tapTimer = setTimeout(() => {
 				tapCount = 0;
 			}, 300); // Таймаут между кликами
-		}		
-		
-		
+		}
 		if (event.target.className.indexOf('mycircle')>=0){mapcircle=1;}
 		if (event.shiftKey && mapcircle==1 && !gsize){
-			let elem=$(event.target);
+			var el=event.target;
+			var elem=$(el);
 			//хотим изменить маркер
-			var desc = prompt("Описание:", event.target.title) || event.target.title;
-			if (desc != null) {
-				let sibs=elem.parent().find('.mycircle');
-				numprof=sibs.index(elem);
-				//также запишем в профиль
-				if (self[Profiles[profileIndex].pointarr][numprof].Name==event.target.title){
-					//старое описание совпадает
-					self[Profiles[profileIndex].pointarr][numprof].Name=desc;
-				}
-				else{
-					console.log('ошибка, описание не совпадает '+self[Profiles[profileIndex].pointarr][numprof].Name);
-					//либо придется искать новое
-					numprof=self[Profiles[profileIndex].pointarr][numprof].findIndex(user => user.Name == event.target.title)
-					if (numprof){
-						console.log('нашел новую точку '+self[Profiles[profileIndex].pointarr][numprof].Name);
+			var desc = el.title;
+			setTimeout((el,elem,desc) => {
+				var desc=prompt('Описание:',desc);
+				if (desc != null) {
+					numprof=elem.siblings('.mycircle').addBack().index(elem);
+					//также запишем в профиль
+					if (self[Profiles[profileIndex].pointarr][numprof].Name==el.title){
+						//старое описание совпадает
 						self[Profiles[profileIndex].pointarr][numprof].Name=desc;
 					}
-					else
-					{
-						console.log('повторно ничего не нашел ');
+					else{
+						console.log('ошибка, описание не совпадает '+self[Profiles[profileIndex].pointarr][numprof].Name);
 					}
+					el.title=desc;
 				}
-				event.target.title=desc;
-			}
+			}, 50,el,elem,desc); // Короткая задержка в 50мс
 		}
 		else if(event.ctrlKey && mapcircle==1 && !gsize){
 			//Меняем группу, не меняем, будем выводить меню с выбором
@@ -2038,12 +2042,12 @@ $(document).ready(function() {
 		return false;
 	});
 	$('#body').on('dragstart',function(event) {
-		//ondragstart 
+		//ondragstart
 		event.preventDefault();
 		return false;
 	});
 	$('#mainpic').on('dragend',function(event) {
-		event.preventDefault();	
+		event.preventDefault();
 		return false;
 	});
 	$('#mainpic').on('pointercancel',function(event) {
@@ -2072,37 +2076,43 @@ $(document).ready(function() {
 			var tmpGroup=maptarget.attr('id').replace( /[^\d]/g, "" );
 			//ищем его в pointsarr по номеру и от туда берем номер группы
 			try {
-				tmpGroup=$.parseJSON(pointsarr[tmpGroup].Groups);
+				//отсчет с 0
+				tmpGroup=$.parseJSON(pointsarr[tmpGroup-1].Groups);
 				tmpGroup=(tmpGroup.length)?tmpGroup[0]:0;
 			}
 			catch(e) {
 				console.log('Не удалось определить группу');
 				tmpGroup=0;
 			}
-			var desc = prompt("Описание:", maptarget.attr('title'));
-			var group = prompt("Номер группы:", tmpGroup);
-			if (desc != null && group != null ) {
-				//Новый номер
-				var numi=mainpic.find('.mycircle').length;
-				//не с 0
-				if (Profiles[profileIndex].StartIndex>0){
-					numi+=Profiles[profileIndex].StartIndex;
+			var numi=mainpic.find('.mycircle').length;
+			//не с 0, там как раз будет +1 для кнопки
+			if (Profiles[profileIndex].StartIndex>0){
+				numi+=Profiles[profileIndex].StartIndex;
+			}			
+			//кнопка-фантом
+			placebtn(oldx,oldy,numi,'',0,0,'');
+			setTimeout((targetTitle,tmpGroup,numi,oldx,oldy) => {
+				var desc = prompt("Описание:", targetTitle);
+				var group = prompt("Номер группы:", tmpGroup);
+				//удаляем фантом
+				mainpic.find('#'+preId+numi).remove();
+				if (desc != null && group != null ) {
+					//Новый номер
+					pointsarr.push({'Name':desc,'CoordX':oldx+'px','CoordY':oldy+'px','Groups':'['+group+']'});
+					//надо ставить уже активный маркер
+					//Новый текст
+					placelisttext(group,desc,numi,1,1);
+					UpdateCountGr(group);
+					var bonusClass='';
+					//Добавляем очищалку стиля для групп точек
+					var tmpgroup=Profiles[profileIndex].GpoupList[group];
+					if (tmpgroup.indexOf('{!style=')>=0){
+						bonusClass='ClearCg';
+					}
+					//Новая кнопка
+					placebtn(oldx,oldy,numi,desc,0,group,bonusClass);
 				}
-				pointsarr.push({'Name':desc,'CoordX':oldx+'px','CoordY':oldy+'px','Groups':'['+group+']'});
-				//надо ставить уже активный маркер
-				//Новый текст
-				placelisttext(group,desc,numi,1,1);
-				UpdateCountGr(group);
-				var bonusClass='';
-				//Добавляем очищалку стиля для групп точек
-				var tmpgroup=Profiles[profileIndex].GpoupList[group];
-				if (tmpgroup.indexOf('{!style=')>=0){
-					bonusClass='ClearCg';
-				}
-				////////
-				//Новая кнопка
-				placebtn(oldx,oldy,numi,desc,0,group,bonusClass);
-			}
+			}, 50,maptarget.attr('title'),tmpGroup,numi,oldx,oldy); // Короткая задержка в 50мс
 		}
 		if (drawLines && mapcircle==0){
 			//запоминаем точку
@@ -3014,6 +3024,11 @@ $(document).ready(function() {
 			88:'x',
 			89:'y',
 			90:'z',
+			//open bracket	219
+			219:'[',
+			//close bracket	221
+			221:']',
+			
 		};
 		return keys;
 	}

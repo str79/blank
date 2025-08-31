@@ -32,6 +32,8 @@ var langStr={
 	SETUPDLG_GSIZE:'Global size',
 	SETUPDLG_ROUTESHOW:'Show route',
 	SETUPDLG_DRAWLINES:'Drawing lines',
+	SETUPDLG_DEC:'Decrease',
+	SETUPDLG_INC:'Increase',	
 	CONTMENU:'Point menu',
 	CONTMENU_CHGROUP:'Change group',
 	CONTMENU_DELPOINT:'Remove Item',
