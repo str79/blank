@@ -54,6 +54,7 @@ body .mycircle.hide{
 #mainpic{
 	cursor: grab;
 	position: relative;
+	transform-origin: center center;
 	touch-action: none;
 }
 #mainpic.active{
@@ -133,14 +134,23 @@ body .mycircle.hide{
 	background: rgb(194,192,17);
 	background: radial-gradient(circle, rgba(194,192,17,1) 29%, rgba(1,112,152,0.75672275746236) 74%, rgba(0,39,255,0.437395026369923) 100%);
 }
-.icondel{
+.icondel,
+.icondelHist{
 	background: url('data:image/svg+xml;charset=UTF-8,<svg height="1000" width="875" xmlns="http://www.w3.org/2000/svg"><path d="M0 281.296l0 -68.355q1.953 -37.107 29.295 -62.496t64.449 -25.389l93.744 0l0 -31.248q0 -39.06 27.342 -66.402t66.402 -27.342l312.48 0q39.06 0 66.402 27.342t27.342 66.402l0 31.248l93.744 0q37.107 0 64.449 25.389t29.295 62.496l0 68.355q0 25.389 -18.553 43.943t-43.943 18.553l0 531.216q0 52.731 -36.13 88.862t-88.862 36.13l-499.968 0q-52.731 0 -88.862 -36.13t-36.13 -88.862l0 -531.216q-25.389 0 -43.943 -18.553t-18.553 -43.943zm62.496 0l749.952 0l0 -62.496q0 -13.671 -8.789 -22.46t-22.46 -8.789l-687.456 0q-13.671 0 -22.46 8.789t-8.789 22.46l0 62.496zm62.496 593.712q0 25.389 18.553 43.943t43.943 18.553l499.968 0q25.389 0 43.943 -18.553t18.553 -43.943l0 -531.216l-624.96 0l0 531.216zm62.496 -31.248l0 -406.224q0 -13.671 8.789 -22.46t22.46 -8.789l62.496 0q13.671 0 22.46 8.789t8.789 22.46l0 406.224q0 13.671 -8.789 22.46t-22.46 8.789l-62.496 0q-13.671 0 -22.46 -8.789t-8.789 -22.46zm31.248 0l62.496 0l0 -406.224l-62.496 0l0 406.224zm31.248 -718.704l374.976 0l0 -31.248q0 -13.671 -8.789 -22.46t-22.46 -8.789l-312.48 0q-13.671 0 -22.46 8.789t-8.789 22.46l0 31.248zm124.992 718.704l0 -406.224q0 -13.671 8.789 -22.46t22.46 -8.789l62.496 0q13.671 0 22.46 8.789t8.789 22.46l0 406.224q0 13.671 -8.789 22.46t-22.46 8.789l-62.496 0q-13.671 0 -22.46 -8.789t-8.789 -22.46zm31.248 0l62.496 0l0 -406.224l-62.496 0l0 406.224zm156.24 0l0 -406.224q0 -13.671 8.789 -22.46t22.46 -8.789l62.496 0q13.671 0 22.46 8.789t8.789 22.46l0 406.224q0 13.671 -8.789 22.46t-22.46 8.789l-62.496 0q-13.671 0 -22.46 -8.789t-8.789 -22.46zm31.248 0l62.496 0l0 -406.224l-62.496 0l0 406.224z"/></svg>') no-repeat 50% 50%;
 	background-size: 100%;
+	cursor: pointer;
+}
+.icondelHist{
+	width: 25px; 
+	height: 29px;
+	vertical-align: midddle;
 	display: inline-block;
+}
+.icondel{
 	width: 14px;
 	height: 24px;
 	vertical-align: bottom;
-	cursor: pointer;
+	display: inline-block;
 }
 .helpp {
 	position: fixed;
@@ -286,9 +296,7 @@ body .mycircle.hide{
 }
 
 #flycMenu {
-	position: absolute;
-	left: 50%;
-	top: 0;
+	position: relative;
 	z-index: 1;
 }
 #flycMenu .list-group-item-text{
@@ -298,9 +306,7 @@ body .mycircle.hide{
 	background: #c8c8c8;
 }
 #flyaoMenu {
-	position: absolute;
-	left: 50%;
-	top: 0;
+	position: relative;
 	z-index: 1;
 }
 #flyaoMenu .list-group-item{
@@ -428,23 +434,14 @@ body .mycircle.hide{
 	gap: 10px;
 }
 #flyProf .flexGroup{
-	align-items: center;
 	display: flex;
 	gap: 10px;
+	align-items: center;
+	justify-content: end;
 	margin-bottom: 0.3em;
-}
-#setupDlg{
-	position: absolute;
-	left: 37%;
-	z-index: 2;
-	top:20%;
-}
-#setupDlg .gsetup{
-	/*align-items: flex-start;*/
 }
 #setupDlg .list-group-item {
 	display: inline-block;
-	/*margin: 0 auto;*/
 	position: static;
 	
 	display: flex;
@@ -518,12 +515,67 @@ body .mycircle.hide{
 }
 /* image tools*/
 #flylist .container > h2.tmpSelect{
-	/*outline: 3px solid rgba(42, 115, 46, 0.57);
-	border-radius: 2px;*/
 	-webkit-box-shadow: 0px 0px 8px 5px rgba(39, 198, 48, 0.94);
 	-moz-box-shadow: 0px 0px 8px 5px rgba(39, 198, 48, 0.94);
 	box-shadow: 0px 0px 8px 5px rgba(39, 198, 48, 0.94);	
 }
+.popupTitle {
+	position: fixed;
+	background: #fff;
+	max-width: 350px;
+	min-width: 200px;
+	max-height:90vh;
+	border-radius: 3px;
+	padding: 5px;
+	box-shadow: 4px 6px 8px rgba(0,0,0,0.5);
+	transform-origin: top left; /* Важно для правильного масштабирования */
+	border: 1px solid #777;
+}
+.popupTitle .popup-content {
+    position: relative;
+    padding: 15px;
+}
+
+.popupTitle .popup-close {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    background: #999;
+	cursor: pointer;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+	margin-top: -1px
+}
+
+.popupTitle .popup-text {
+    margin-top: 5px;
+    word-wrap: break-word;
+}
+
+.popupTitle .popup-done {
+	display: inline-block;
+	cursor: pointer;
+}
+.popupTitle .btns{
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+.popupTitle .btns div{
+	cursor: pointer;
+}
+
+
+/* mobile correct*/
 .mobile #flyProf{
 	top: 6.6em;
 	position: fixed;
@@ -532,12 +584,19 @@ body .mycircle.hide{
 	top: 3.3em;
 	position: fixed;
 }
-body.mobile{
-	/*overflow: auto;	*/
+.mobile .helpp .container{
+	display: flex;
+	flex-flow: row-reverse;
+	flex-wrap: wrap;
+	gap:3px;
+}
+/*help*/
+.mobile .helpp h2{
+	align-self: flex-start;
 }
 .mobile #flyProf .mainfly{
 	max-width: 100vw;
-    overflow: scroll;
+	overflow: scroll;
 	max-height:calc(100vh - 6.6em - 50px)
 }
 .mobile .container{
@@ -546,15 +605,25 @@ body.mobile{
 .mobile #flylist{
 	z-index: 3;
 	max-width: 100vw;
-    overflow: scroll;
-	
+	overflow: scroll;
+}
+.mobile .list-group-item-heading{
+	white-space: pre-wrap;
 }
 .mobile #flylist .maingroups
-	max-height:calc(100vh - 360px - 124px)
+max-height:calc(100vh - 360px - 124px);
 }
 .mobile #flylist .text{
 	white-space: normal;
 }
+
 .mobile #flyProf .text{
 	white-space: normal;
+}
+.mobile #flyProf input{
+	width: 100%;
+	max-width: 100%;
+}
+.mobile .list-group{
+	max-height: 80vh;
 }
