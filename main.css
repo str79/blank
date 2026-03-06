@@ -523,42 +523,51 @@ body .mycircle.hide{
 	position: fixed;
 	background: #fff;
 	max-width: 350px;
-	min-width: 200px;
 	max-height:90vh;
 	border-radius: 3px;
-	padding: 5px;
+	padding: 7px;
 	box-shadow: 4px 6px 8px rgba(0,0,0,0.5);
 	transform-origin: top left; /* Важно для правильного масштабирования */
 	border: 1px solid #777;
 }
-.popupTitle .popup-content {
-    position: relative;
-    padding: 15px;
+.popup-controls{
+	position: relative;
+	z-index: 1;
+	overflow: hidden;
+	transition: transform 0.3s ease;
+	display: flex;
+	justify-content: right;
+	gap: 8px;
 }
-
+.popupTitle .popup-minimize:focus,
+.popupTitle .popup-close:focus
+{
+	outline:none;
+}
+.popup-minimize{
+	height: 24px;
+	width: 24px;
+	border: none;
+	background: #eee;
+	cursor: pointer;
+	font-size: 18px;
+	line-height: 1;
+}
 .popupTitle .popup-close {
-    position: absolute;
-    top: 0px;
-    right: 0px;
+    width: 24px;
+    height: 24px;
+    border: none;
     background: #999;
 	cursor: pointer;
     color: white;
-    border: none;
     border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    cursor: pointer;
     font-size: 18px;
     line-height: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-	margin-top: -1px
 }
 
 .popupTitle .popup-text {
     margin-top: 5px;
-    word-wrap: break-word;
+	word-wrap: break-word;
 }
 
 .popupTitle .popup-done {
@@ -573,7 +582,11 @@ body .mycircle.hide{
 .popupTitle .btns div{
 	cursor: pointer;
 }
-
+.popupTitle.minimized .btns,
+.popupTitle.minimized .popup-text
+{
+	display: none;
+}
 
 /* mobile correct*/
 .mobile #flyProf{
@@ -608,7 +621,8 @@ body .mycircle.hide{
 	overflow: scroll;
 }
 .mobile .list-group-item-heading{
-	white-space: pre-wrap;
+	/*white-space: pre-wrap;*/
+	white-space: normal;
 }
 .mobile #flylist .maingroups
 max-height:calc(100vh - 360px - 124px);

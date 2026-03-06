@@ -38,6 +38,7 @@ var langStr={
 	CONTMENU_CHGROUP:'Change group',
 	CONTMENU_DELPOINT:'Remove Item',
 	CONTMENU_ADDIGNORE:'Ignore for routes',
+	CONTMENU_ADDCONTINUOUS:'long-lasting',
 	LANG:'<img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Flag_of_the_United_Kingdom_%281-2%29.svg" style="display: inline;height: 1em;">Lang',
 	HELP_TEXT:'<br>-----The operating procedure is approximately as follows (quick start)----------\:<br> \
 	we select the desired map on the right menu, as we progress through the game, we turn off the collected points individually by clicking on it in the map, and our path is remembered in history.<br> \
@@ -98,8 +99,13 @@ var langStr={
 	<br>---Map\:<br> \
 	Click on an element on the map while holding down the shift key - you can edit the text description. \
 	<br>\
-	If you hold down ctrl and click on map element, item menu appears, you can change his group number<br> \
-	or remove the item itself or add the point to the ignore list<br> \
+	If you hold down ctrl and click on map element, Markers content menu appears<br> \
+	<br>---Markers content menu\:<br> \
+	you can change group number \
+	remove the item itself \
+	add the point to the ignore list<br> \
+	add the point continious effect,  which will allow you to add it to history multiple times and it won\'t close when double-clicked<br> \
+	<br>---Markers content menu\<br> \
 	Markers (elements) on the map can be moved while holding alt - then a copy of the mark is created<br> \
 	Also added a method to cancel dragging if ctrl and shift are pressed.<br> \
 	<br> \
