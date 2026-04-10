@@ -31,7 +31,7 @@ $(document).ready(function() {
 	var selectedArr=[]; //массив выделенных элементов
 	var historyName; //имя массива истории
 	var settingsName; //название настроек
-	let profSym='@g='; //символ разделитель между профилем и точкой, для истории
+	const profSym='@g='; //символ разделитель между профилем и точкой, для истории
 	const symCont='@%'; //сивол разделитель для номера для длительных точек, не используется
 	var preId='mapoint'; //ид перед названием точки
 	var activeongroups=1; //включать ли категории (в начале и при переключении профилей-карт)
@@ -53,6 +53,7 @@ $(document).ready(function() {
 	var dLSelected=0;//какой инструмент выбирать по умолчанию (0 - tmpLine) в режиме рисования
 	var leaderLineOptions={};//опции для постоянной линии
 	var arrPLines=[];//Массив постоянных линий
+	var arrBindLines={};//Массив линий, привязанных к точке
 	var keyBinging=-1;//Включен ли режим отлова клавиш, заодно и индекс клавиши
 	var customKeys={};//Ассоциативный массив настроек ручных назначений кнопок
 	var defaultKeys={
@@ -459,7 +460,10 @@ $(document).ready(function() {
 				tmpName=Profiles[num].GpoupList[z].replaceAll(regStyle,'');
 			}
 			//wrapMainGroups(Profiles[num].GpoupList[z])
-			groupsHtml=groupsHtml.add(wrapMainGroups(tmpName));
+			let tmpGroup=wrapMainGroups(tmpName);
+			//это list-group-item
+			tmpGroup.addClass('ngroup'+z);
+			groupsHtml=groupsHtml.add(tmpGroup);
 		}
 		//и история
 		groupsHtml=groupsHtml.add(wrapMainGroups($('#tmpHistname .langNow').html()).addClass('autohist'));
@@ -811,7 +815,13 @@ $(document).ready(function() {
 				self[Profiles[nindex].pointarr][tmppoint][prop]=addslashes(self[Profiles[nindex].pointarr][tmppoint][prop]);
 			}
 			ptprops+='\t\t';
+			if (prop=='Name'){
+				ptprops+='"'+prop+'" : "'+self[Profiles[nindex].pointarr][tmppoint][prop]+'",'+"\n";
+			}
+			else
+			{
 			ptprops+='\''+prop+'\' : \''+self[Profiles[nindex].pointarr][tmppoint][prop]+'\','+"\n";
+			}
 		}
 		return '\t{'+"\n"+ptprops+'\t},'+"\n";
 	}
@@ -835,7 +845,13 @@ $(document).ready(function() {
 				self[Profiles[nindex].pointarr][tmppoint][prop]=pointsarr[tmppoint].Groups;
 			}*/
 			ptprops+='\t\t';
+			if (prop=='Name'){
+				ptprops+='"'+prop+'" : "'+self[Profiles[nindex].pointarr][tmppoint][prop]+'",'+"\n";
+			}
+			else
+			{
 			ptprops+='\''+prop+'\' : \''+self[Profiles[nindex].pointarr][tmppoint][prop]+'\','+"\n";
+			}
 		}
 		return '\t{'+"\n"+ptprops+'\t},'+"\n";
 	}
@@ -844,7 +860,7 @@ $(document).ready(function() {
 		var elemmap=$(el);
 		var curbtn='';
 		if (typeof(group)=='undefined' || group=='undefined'){
-			group=el.data('group');
+		group=el.data('group');
 		}
 		curbtn+="\t"+'{'+"\n";
 		curbtn+="\t\t"+"'Name':'"+addslashes(elemmap.attr('title'))+"',"+"\n";
@@ -902,8 +918,8 @@ $(document).ready(function() {
 					//а тут дубли нежелательны т.к. сбросит всю историю, это единственный косяк
 					tmppos=globhist.indexOf(tmpsort[tmppoint]);
 					if (tmppos>=0){
-						//А тут история перестраивается обратно
-						newGlobhist[tmppos]=preId+(Number(tmppoint)+Profiles[nindex].StartIndex)+profSym+Profiles[nindex].pointarr;
+					//А тут история перестраивается обратно
+					newGlobhist[tmppos]=preId+(Number(tmppoint)+Profiles[nindex].StartIndex)+profSym+Profiles[nindex].pointarr;
 					}
 				}*/
 				for (tmppoint in globhist) {
@@ -993,8 +1009,8 @@ $(document).ready(function() {
 			}
 		}else
 		{
-				//потом переделать на поиск по pointarr, когда туда будут заноситься новые точки
-				flylist.each(function(){
+			//потом переделать на поиск по pointarr, когда туда будут заноситься новые точки
+			flylist.each(function(){
 				el=$(this);
 				ptIndex=el.data('id')-1;
 				curbtn+=drawpointCur(ptIndex,profileIndex,el);
@@ -1074,7 +1090,17 @@ $(document).ready(function() {
 		}
 		if (typeof(routeShow)!='undefined' && routeShow){
 			let changes=0;
-			if (key==usedKeys['drawDec']){	
+			
+			//роуты не только включены, но и есть диалог
+			let objPopupTitle=document.querySelector('.popupTitle');
+			if (objPopupTitle!=null){
+				//тут пропуск диалога, универсальный ответ да
+				if (key === 32) {
+					//пробел
+					popupDone(objPopupTitle);
+				}
+			}
+			if (key==usedKeys['drawDec']){
 				//open bracket	219	[
 				if (defRouteCount>3){
 					defRouteCount-=1;
@@ -1142,6 +1168,7 @@ $(document).ready(function() {
 				obj.css('top',(objtop+1)+'px');
 				break;
 			}
+			refreshTGuides(obj);
 		}
 		if (key==usedKeys['keymove']){
 			//keymove (k)
@@ -1315,6 +1342,21 @@ $(document).ready(function() {
 		}
 		event.preventDefault();
 	});
+	$('#flyaoMenu .list-group-item .showRdlg').on('click',function(e){
+		//быстрые действия: показ диалога 
+		//Получаем новый маршрут
+		if (routeShow){
+			let routes=GetCurRoute();
+			let firstId;
+			if (routes.options.firstHist){
+				firstId=routes.curRoute.eq(1);
+			}
+			else{
+				firstId=routes.curRoute.eq(0);
+			}
+			showWndDesc(firstId[0].title,firstId[0]);
+		}
+	});		
 	$('#flyaoMenu .list-group-item .flipmaps').on('click',(event)=>{
 		//переворачиваем карты
 		//+Внешне надо только их перевернуть
@@ -1763,6 +1805,95 @@ $(document).ready(function() {
 		}
 		return {curRoute:curRoute,options:options};
 	}
+	function refreshTGuides(target=null){
+		let dataids=[];
+		if (!target || target.tagName=="IMG"){
+			//глобальное обновление
+			dataids=Object.keys(arrBindLines);
+		}
+		else
+		{
+			dataids.push($(target).data('id'));
+		}
+		if (dataids.length){
+			//для каждой точки
+			dataids.forEach(function(index){
+				if (arrBindLines[index]){
+					//для каждой записи
+					arrBindLines[index].forEach(function(iLine){
+						iLine.position();
+					})
+				}
+			})
+		}
+	}
+	
+	$('#tmpContMenu .list-group-item .drawtguides').on('click',function(e){
+		//контекстное меню точки: нарисовать направляющие
+		const parentel=$(this).closest('#tmpContMenu');
+		const dataid=parentel.data('itemId');
+		
+		if (!dataid){console.log('no point id');}
+		
+		let el=document.querySelector('#'+preId+dataid);
+		let  curscale=Profiles[profileIndex].zoom;
+		//const elContinuous=el.find('.addContinuous');
+		//elContinuous.removeClass('active');
+		
+		if (dataid && el && !el.classList.contains('hide')){
+			let ActiveState=this.classList.contains('active');
+			
+			if (ActiveState){
+				//вкл. - выкл.
+				if (arrBindLines[dataid]){
+					arrBindLines[dataid].forEach(function(iLine){
+						iLine.remove();
+					})
+					delete arrBindLines[dataid];
+					//выключаем индикатор
+					this.classList.remove('active');
+				}
+			}
+			else
+			{
+				let lineColor = document.querySelector('.drawingTools .setColors .back .mark')?.dataset.color || "#fff";
+				let sizelen=document.querySelector('body').getBoundingClientRect().width;
+				let clientWidth=el.clientWidth*curscale;
+				let clientHeight=el.clientHeight*curscale;
+				
+				let elStart=LeaderLine.pointAnchor(el, {x: -sizelen/2, y: 0});
+				let elend=LeaderLine.pointAnchor(el, {x: sizelen/2, y: 0});
+				let line1=new LeaderLine({start:elStart,end:elend,path:'straight',color:lineColor,dash: true,endPlug:'behind',size:1,});
+				
+				elStart=LeaderLine.pointAnchor(el, {x: -sizelen/2, y: clientHeight});
+				elend=LeaderLine.pointAnchor(el, {x: sizelen/2, y: clientHeight});
+				let line3=new LeaderLine({start:elStart,end:elend,path:'straight',color:lineColor,dash: true,endPlug:'behind',size:1,});
+				
+				
+				elStart=LeaderLine.pointAnchor(el, {x: 0, y: -sizelen/2});
+				elend=LeaderLine.pointAnchor(el, {x: 0, y: sizelen/2});
+				let line2=new LeaderLine({start:elStart,end:elend,path:'straight',color:lineColor,dash: true,endPlug:'behind',size:1,});
+				
+				elStart=LeaderLine.pointAnchor(el, {x: clientWidth, y: -sizelen/2});
+				elend=LeaderLine.pointAnchor(el, {x: clientWidth, y: sizelen/2});
+				let line4=new LeaderLine({start:elStart,end:elend,path:'straight',color:lineColor,dash: true,endPlug:'behind',size:1,});
+				
+				arrBindLines[dataid]=[];
+				arrBindLines[dataid].push(line1);
+				arrBindLines[dataid].push(line2);
+				arrBindLines[dataid].push(line3);
+				arrBindLines[dataid].push(line4);
+				//включаем/выключаем индикатор
+				this.classList.add('active');
+			}
+		}
+		else{
+			console.log('object hidden');
+		}
+		//убираем меню
+		parentel.toggleClass('hide');
+	});
+	
 	$('#tmpContMenu .list-group-item .chgroup').on('click',function(e){
 		//старый номер группы
 		var parentel=$(this).closest('#tmpContMenu');
@@ -1951,7 +2082,9 @@ $(document).ready(function() {
 			tapCount = 0;
 			}, 300); // Таймаут между кликами
 		}*/
-		if (event.target.className.indexOf('mycircle')>=0){mapcircle=1;}
+		//мы нажали на точку
+		if (event.target.classList.contains('mycircle') && !event.target.classList.contains('hide') ){mapcircle=1;}
+		
 		if (event.shiftKey && mapcircle==1 && !gsize){
 			var el=event.target;
 			var elem=$(el);
@@ -1974,11 +2107,12 @@ $(document).ready(function() {
 			}, 50,el,elem,desc); // Короткая задержка в 50мс
 		}
 		else if(event.ctrlKey && mapcircle==1 && !gsize){
-			//Меняем группу, не меняем, будем выводить меню с выбором
+			//Показ меню точки
 			let el=$('#tmpContMenu');
 			let elh=el.outerHeight();
 			let menuheight=0;
-			const elId=parseInt($(event.target).attr('id').replace( /[^\d]/g, "" ));
+			//const elId=parseInt($(event.target).attr('id').replace( /[^\d]/g, "" ));
+			const elId=$(event.target).data('id');
 			el.toggleClass('hide');
 			el.css('left',event.pageX+'px');
 			menuheight=event.pageY;
@@ -1995,6 +2129,19 @@ $(document).ready(function() {
 				if (pointsarr[elId-1].continuous){
 					elContinuous.addClass('active');
 				}
+				else
+				{
+					elContinuous.removeClass('active');
+				}
+			}
+			//добавляем индикатор направляющих
+			const elDrawtguides=el.find('.drawtguides');
+			if (arrBindLines[elId]){
+				elDrawtguides.addClass('active');
+			}
+			else
+			{
+				elDrawtguides.removeClass('active');
 			}
 		}
 		if (event.ctrlKey && mapcircle==0){
@@ -2229,7 +2376,7 @@ $(document).ready(function() {
 				mainpic=maptarget;
 			}
 			else if (circlept==1){
-				//круг пунктирный
+				//круг-квадрат подсказка
 				mainpic=maptarget;
 				var inwnd=inWindow(maptarget,$('#mainpic .mycircle').not('.hide'));
 				if (inwnd.length){
@@ -2337,7 +2484,7 @@ $(document).ready(function() {
 				}
 				else
 				{
-					//тоже mapcircle, но не глобальное
+					//тоже mapcircle, но уже глобальное
 					//Корректировка на основе zoom
 					if (mapcircle){
 						curscale=scaleX;
@@ -2350,6 +2497,8 @@ $(document).ready(function() {
 						mainpic.css('top',cy+'px');
 						//Также обновляем временные линии (даже если не включены маршруты)
 						refreshDirectrix();
+						//обновляем позиции направляющих если они есть
+						refreshTGuides(event.target);
 					}
 					if (typeof(routeShow)!='undefined' && routeShow){
 						//маршрут включен и это двигается центральная картинка или точка маршрута, обновляем позиции
@@ -2582,7 +2731,7 @@ $(document).ready(function() {
 			//Скрываем
 			par.removeClass('active');
 			if (!elContinuous){
-			//кнопка длительная - не скрываем
+				//кнопка длительная - не скрываем
 				$('#'+par.data('id')).addClass('hide');
 			}
 			//off - add to history
@@ -2761,15 +2910,16 @@ $(document).ready(function() {
 	$('#mainpic').on('mouseenter','.mycircle',function(){
 		lastId=this.id;
 	});
-	$('#mainpic').on('pointerdown','.mycircle',function(){
+	$('#mainpic').on('pointerdown','.mycircle',function(event){
 		//показываем диалог
 		//const clickElement=this;
-		//показываем диалог только если включен мобильный, либо если включены маршруты
-		if (detMob || (typeof(routeShow)!='undefined' && routeShow) ){
+		//показываем диалог только если включен мобильный
+		if (detMob ){
 			showWndDesc(this.title,this);
 		}
 	});
 	function showWndDesc(cText, circleElement) {
+		//диалог для быстрого прохода по текущим роутам
 		let closeWnd=0;
 		//id
 		const circleId=$(circleElement).data('id');
@@ -2839,12 +2989,7 @@ $(document).ready(function() {
 		});
 		// Обработчик успешного завершения операции
 		popup.querySelector('.popup-done').addEventListener('click', (e) => {
-			const popup=e.target.closest('.popupTitle');
-			const curId=parseInt(popup.dataset.id);
-			mycircleDblclick(preId+curId);
-			popup.remove();
-			//если включены маршруты, открываем новый попап
-			if (typeof(routeShow)!='undefined' && routeShow){recallWndDesc();}
+			popupDone(e.target.closest('.popupTitle'));
 		});
 		// обработчик сворачивания
 		popup.querySelector('.popup-close').addEventListener('click', () => {
@@ -2864,6 +3009,13 @@ $(document).ready(function() {
 			}
 		});
 		
+	}
+	function popupDone(popup){
+		const curId=parseInt(popup.dataset.id);
+		mycircleDblclick(preId+curId);
+		popup.remove();
+		//если включены маршруты, открываем новый попап
+		if (typeof(routeShow)!='undefined' && routeShow){recallWndDesc();}
 	}
 	function recallWndDesc(){
 		//ищем новый ид по маршрутам	
@@ -3334,4 +3486,4 @@ $(document).ready(function() {
 	function detectMob() {
 		return ( ( window.innerWidth <= 800 ));
 	}
-});												
+});																					

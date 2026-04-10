@@ -314,10 +314,12 @@ body .mycircle.hide{
 }
 #flyaoMenu .list-group-item-text{
 	cursor: pointer;
+	padding-right:10px;
 }
 #flyaoMenu .list-group-item-text:hover{
 	background: #c8c8c8;
-	padding:0 10px;
+	padding-right:0;
+	padding-left:10px;
 }
 #flyaoMenu .list-group-item-text:active{
 	background: #e8e8e8;

@@ -15,6 +15,7 @@ var langStr={
 	FASTACT_COMPRESS:'Compress points.',
 	FASTACT_IGNORDEL:'Delete ignore list.',
 	FASTACT_FLIPMAPS:'Flip the maps',
+	FASTACT_SHOWDLG:'show routes dialog',
 	MAPS:'Maps',
 	HISTNAME:'History',
 	GROUPS:'Groups',
@@ -39,7 +40,8 @@ var langStr={
 	CONTMENU_DELPOINT:'Remove Item',
 	CONTMENU_ADDIGNORE:'Ignore for routes',
 	CONTMENU_ADDCONTINUOUS:'long-lasting',
-	LANG:'<img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Flag_of_the_United_Kingdom_%281-2%29.svg" style="display: inline;height: 1em;">Lang',
+	CONTMENU_DRAWTGUIDES:'draw the guides',	
+	LANG:'<img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Flag_of_the_United_Kingdom_%281-2%29.svg" style="display: inline;height: 1em;padding:2px;">Lang',
 	HELP_TEXT:'<br>-----The operating procedure is approximately as follows (quick start)----------\:<br> \
 	we select the desired map on the right menu, as we progress through the game, we turn off the collected points individually by clicking on it in the map, and our path is remembered in history.<br> \
 	If the map is new, we can create it in quick actions menu "create a new map", the first mark will be created, then this mark can be moved, renamed and multiplied with alt pressed.<br> \
