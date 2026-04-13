@@ -231,7 +231,7 @@ $(document).ready(function() {
 		}
 	}
 	async function loadMAPSettings(langdir){
-		let path='./lang/'+langdir+'/settings.js';
+		let path='./lang/'+langdir.toLowerCase()+'/settings.js';
 		if (typeof(mapSettings)!='undefined'){
 			//уже есть, удаляем
 			mapSettings.remove();

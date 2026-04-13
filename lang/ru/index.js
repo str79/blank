@@ -15,6 +15,7 @@ var langStr={
 	FASTACT_COMPRESS:'Сжать точки.',
 	FASTACT_IGNORDEL:'Удалить игнор лист.',
 	FASTACT_FLIPMAPS:'Перевернуть карты',
+	FASTACT_SHOWDLG:'Показать диалог роутов',
 	MAPS:'Карты',
 	HISTNAME:'История',
 	GROUPS:'Группы',
@@ -39,7 +40,8 @@ var langStr={
 	CONTMENU_DELPOINT:'Удалить',
 	CONTMENU_ADDIGNORE:'В игнор для маршрутов',
 	CONTMENU_ADDCONTINUOUS:'Многоразовая',
-	LANG:'<img src="https://upload.wikimedia.org/wikipedia/commons/f/f3/Flag_of_Russia.svg" style="display: inline;height: 1em;">Язык',
+	CONTMENU_DRAWTGUIDES:'Нарисовать направляющие',
+	LANG:'<img src="https://upload.wikimedia.org/wikipedia/commons/f/f3/Flag_of_Russia.svg" style="display: inline;height: 1em;padding:2px;">Язык',
 	HELP_TEXT:'<br>-----Порядок работы примерно следующий----------\:<br> \
 	выбираем нужную карту справа, по мере прохождения игры отключаем собранные точки индивидуально, а в истории запоминается наш путь.<br> \
 	Если карта новая, её создаем в быстрых действиях, создать новую карту, будет создана первая метка, далее эту метку можно передвигать, переименовывать и размножать с нажатым alt.<br> \
