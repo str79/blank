@@ -220,14 +220,15 @@ $(document).ready(function() {
 			customKeys=globSettings['customKeys'];
 		}
 		//восстанавливаем режимы
-		actSave=globSettings['session']['actSave'];
-		if(actSave){
-			invIndex=globSettings['session']['invIndex'];
-			keymove=globSettings['session']['keymove'];			
-			//активируем визуально
-			paintActions(['actSave','invIndex','keymove']);
+		if (globSettings['session']){
+			actSave=globSettings['session']['actSave'] || 0;
+			if(actSave){
+				invIndex=globSettings['session']['invIndex'];
+				keymove=globSettings['session']['keymove'];			
+				//активируем визуально
+				paintActions(['actSave','invIndex','keymove']);
+			}
 		}
-		
 	}
 	function loadSettings(){
 		globSettings=localStorage.getItem(settingsName);
@@ -251,21 +252,21 @@ $(document).ready(function() {
 	function loadHistory(){
 		globhist=getCookie(historyName);
 		try {
-			//globhist=[];
-			globhist = JSON.parse(globhist);
-			//Если история есть заполняем группу история всеми элементами.
-			//console.log(globhist);
-			//loadhist(); !!! история загружается в другом месте profile select, тут загружать не надо
-		}
-		catch(e) {
-			//console.log(e); // error in the above string (in this case, yes)!
-			console.log('Данных истории в куках нет / history corrupted');
-			globhist=[];
-		}
-		if (globhist===null){
-			console.log('История не существует / history not found');
-			globhist=[];
-		}
+		//globhist=[];
+		globhist = JSON.parse(globhist);
+		//Если история есть заполняем группу история всеми элементами.
+		//console.log(globhist);
+		//loadhist(); !!! история загружается в другом месте profile select, тут загружать не надо
+	}
+	catch(e) {
+		//console.log(e); // error in the above string (in this case, yes)!
+		console.log('Данных истории в куках нет / history corrupted');
+		globhist=[];
+	}
+	if (globhist===null){
+		console.log('История не существует / history not found');
+		globhist=[];
+	}
 	}
 	function loadGlobIgnore(){
 		globIgnore=getCookie(IgnoreName);
@@ -3454,27 +3455,27 @@ $(document).ready(function() {
 	});
 	function DeleteAllHistory(){
 		globhist=[];
-		//update history
-		setCookie(historyName,JSON.stringify(globhist),{expires:60*60*24*30,path:'/'})
-		//также надо удалить метки
-		$('.maingroups .list-group-item.autohist .list-group-item-text').remove();
-		//UpdateCountGr();
-		//перезагрузка
-		profileSelect(profileIndex);
+	//update history
+	setCookie(historyName,JSON.stringify(globhist),{expires:60*60*24*30,path:'/'})
+	//также надо удалить метки
+	$('.maingroups .list-group-item.autohist .list-group-item-text').remove();
+	//UpdateCountGr();
+	//перезагрузка
+	profileSelect(profileIndex);
 	}
 	//работа с куками
 	function getCookie(name) {
-		//устаревшее
-		matches=[];
-		matches[1]=localStorage.getItem(name);
-		ret=matches ? decodeURIComponent(matches[1]) : undefined;
-		return ret;
+	//устаревшее
+	matches=[];
+	matches[1]=localStorage.getItem(name);
+	ret=matches ? decodeURIComponent(matches[1]) : undefined;
+	return ret;
 	}
 	function setCookie(name, value, options={expires:60*60*24*30,path:'/'}) {
-		//устаревшее
-		value = encodeURIComponent(value);
-		//document.cookie = updatedCookie;
-		localStorage.setItem(name, value);
+	//устаревшее
+	value = encodeURIComponent(value);
+	//document.cookie = updatedCookie;
+	localStorage.setItem(name, value);
 	}
 	function deleteCookie(name) {
 	localStorage.removeItem(name);
@@ -3560,4 +3561,4 @@ $(document).ready(function() {
 	function detectMob() {
 	return ( ( window.innerWidth <= 800 ));
 	}
-	});																								
+	});																									
