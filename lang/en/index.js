@@ -1,6 +1,7 @@
 var langStr={
 	HELP:'Help',
 	ACTIONS:'Actions',
+	ACT_SAVE:'Save modes and positions',
 	ACT_KEYMOVE:'Moving with keyboard buttons',
 	ACT_GLOBALMOVE:'Global move',
 	ACT_GLOBALSIZE:'Global size',
@@ -122,6 +123,9 @@ var langStr={
 	<br>\
 	shift + d - removes selection. \
 	<br>---Actions<br> \
+	The Save modes and position option saves some options (currently, button movement and a younger numbers at the top), but most importantly, saves the map position: \
+	saves on reboot or window closing when the option is enabled, resets when it disabled \
+	<br> \
 	Added a mode for mass dragging marks (elements,points) by pessing g key and resizing by pressing z.<br> \
 	While holding shift - proportional change in the distances between marks (as if you decided to change the scale\
 	maps and the labels need to be harmonize), without the shift key - the width and length are stretched differently, zg keys are no longer used, \
