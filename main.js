@@ -205,7 +205,7 @@ $(document).ready(function() {
 			if (globSettings['session']['pos'] && globSettings['session']['pos'].pointsCur){
 				mainpic.css('left',globSettings['session']['pos'].pointsCur.left);
 				mainpic.css('top',globSettings['session']['pos'].pointsCur.top);
-			}
+				}
 		}
 	}
 	
@@ -252,21 +252,21 @@ $(document).ready(function() {
 	function loadHistory(){
 		globhist=getCookie(historyName);
 		try {
-		//globhist=[];
-		globhist = JSON.parse(globhist);
-		//Если история есть заполняем группу история всеми элементами.
-		//console.log(globhist);
-		//loadhist(); !!! история загружается в другом месте profile select, тут загружать не надо
-	}
-	catch(e) {
-		//console.log(e); // error in the above string (in this case, yes)!
-		console.log('Данных истории в куках нет / history corrupted');
-		globhist=[];
-	}
-	if (globhist===null){
-		console.log('История не существует / history not found');
-		globhist=[];
-	}
+			//globhist=[];
+			globhist = JSON.parse(globhist);
+			//Если история есть заполняем группу история всеми элементами.
+			//console.log(globhist);
+			//loadhist(); !!! история загружается в другом месте profile select, тут загружать не надо
+		}
+		catch(e) {
+			//console.log(e); // error in the above string (in this case, yes)!
+			console.log('Данных истории в куках нет / history corrupted');
+			globhist=[];
+		}
+		if (globhist===null){
+			console.log('История не существует / history not found');
+			globhist=[];
+		}
 	}
 	function loadGlobIgnore(){
 		globIgnore=getCookie(IgnoreName);
@@ -541,8 +541,6 @@ $(document).ready(function() {
 		//заполнение списков и точек
 		fillGroupsList();
 		//Добавляем custom стили для групп точек
-		//var groupsall=$('.maingroups .list-group-item:not(.autohist)');
-		//var groupscnt=groupsall.length;
 		for (z=0;z<groupscnt;z++){
 			var tmpgroup=Profiles[num].GpoupList[z]; //groupsall.eq(z);
 			if (tmpgroup.indexOf('{!style=')>=0){
@@ -2620,6 +2618,9 @@ $(document).ready(function() {
 		var el=$(this);
 		var cce=$('#'+el.data('id'));
 		centerOnMap(cce);
+		//подсветка
+		cce.addClass('pulse')						
+		setTimeout(() => cce.removeClass('pulse'),1500);
 	});
 	function mycircleDblclick(newid){
 		//дабл клик по кругу - ищем его id в списке и тыкаем по иконке.
@@ -3388,9 +3389,9 @@ $(document).ready(function() {
 					newel.data('profile',sresult[i].profile);
 					newel.on('click',function(event){
 						var profileCur=$(this).data('profile');
-						var sibs=$('#flyProf .list-group-item');
+						var sibs=$('#flyProf .mainfly .list-group-item');
 						if (profileCur!=profileIndex){
-							sibs.eq(profileCur+1).click();
+							sibs.eq(profileCur).click();
 							//Выключение истории
 							$('#flylist .autohist .list-group-item-heading .icon').click();
 						}
@@ -3409,9 +3410,9 @@ $(document).ready(function() {
 					newel.data('profile',otresult[i].profile);
 					newel.on('click',function(event){
 						var profileCur=$(this).data('profile');
-						var sibs=$('#flyProf .list-group-item');
+						var sibs=$('#flyProf .mainfly .list-group-item');
 						if (profileCur!=profileIndex){
-							sibs.eq(profileCur+1).click();
+							sibs.eq(profileCur).click();
 							//Выключение истории 
 							$('#flylist .autohist .list-group-item-heading .icon').click();
 						}
@@ -3429,8 +3430,8 @@ $(document).ready(function() {
 	function centerOnMap(el){
 		var btnx=el.get(0).offsetLeft;
 		var btny=el.get(0).offsetTop;
-		var sx=window.innerWidth;//screen.width;
-		var sy=window.innerHeight;//screen.height;
+		var sx=window.innerWidth/2;//screen.width center;
+		var sy=window.innerHeight/2;//screen.height center;
 		var mainpic=$('#mainpic');
 		var curscale=1;
 		if (typeof(Profiles[profileIndex].zoom)!=undefined){
@@ -3444,8 +3445,16 @@ $(document).ready(function() {
 		var mapnullw=(mainpic.width()*(curscale-1))/2;
 		var mapnullh=(mainpic.height()*(curscale-1))/2;
 		//и минус пол. кнопки - (20/2
-		$('#mainpic').css('left',sx/2+mapnullw-(btnx*curscale)-bonusbtn-(20/2)+'px');
-		$('#mainpic').css('top',sy/2+mapnullh-(btny*curscale)-bonusbtn-(20/2)+'px');
+		
+		//мы должны корректировать центр экрана x, чтобы правый список (как и левый) не загораживал обзор
+		//мы должны прибавить расстояние до границы правого угла и полурасстояние между правым и левым углом.
+		let flyw=document.querySelector('#flylist .container').offsetWidth; //ширина списка групп слева
+		let flyprof=document.querySelector('#flyProf .container').offsetWidth;// ширина списка карт и прочего.
+		let wBound=window.innerWidth-flyw-flyprof; //пространство посередине
+		sx=flyw+wBound/2; //ставим новый центр
+		
+		$('#mainpic').css('left',(mapnullw-(btnx*curscale)-bonusbtn-(20/2))+sx+'px');
+		$('#mainpic').css('top',(mapnullh-(btny*curscale)-bonusbtn-(20/2))+sy+'px');
 	}
 	//Очистка истории
 	$('.maingroups').on('click','.list-group-item.autohist h4',function(event){
@@ -3455,110 +3464,110 @@ $(document).ready(function() {
 	});
 	function DeleteAllHistory(){
 		globhist=[];
-	//update history
-	setCookie(historyName,JSON.stringify(globhist),{expires:60*60*24*30,path:'/'})
-	//также надо удалить метки
-	$('.maingroups .list-group-item.autohist .list-group-item-text').remove();
-	//UpdateCountGr();
-	//перезагрузка
-	profileSelect(profileIndex);
+		//update history
+		setCookie(historyName,JSON.stringify(globhist),{expires:60*60*24*30,path:'/'})
+		//также надо удалить метки
+		$('.maingroups .list-group-item.autohist .list-group-item-text').remove();
+		//UpdateCountGr();
+		//перезагрузка
+		profileSelect(profileIndex);
 	}
 	//работа с куками
 	function getCookie(name) {
-	//устаревшее
-	matches=[];
-	matches[1]=localStorage.getItem(name);
-	ret=matches ? decodeURIComponent(matches[1]) : undefined;
-	return ret;
+		//устаревшее
+		matches=[];
+		matches[1]=localStorage.getItem(name);
+		ret=matches ? decodeURIComponent(matches[1]) : undefined;
+		return ret;
 	}
 	function setCookie(name, value, options={expires:60*60*24*30,path:'/'}) {
-	//устаревшее
-	value = encodeURIComponent(value);
-	//document.cookie = updatedCookie;
-	localStorage.setItem(name, value);
+		//устаревшее
+		value = encodeURIComponent(value);
+		//document.cookie = updatedCookie;
+		localStorage.setItem(name, value);
 	}
 	function deleteCookie(name) {
-	localStorage.removeItem(name);
+		localStorage.removeItem(name);
 	}
 	//работа с куками
 	function swapObj(obj) {
-	//меняет значение на ключи
-	return Object.fromEntries(Object.entries(obj).map(([key,value])=>[value,key]));
+		//меняет значение на ключи
+		return Object.fromEntries(Object.entries(obj).map(([key,value])=>[value,key]));
 	}
 	function getKeysArr() {
-	var keys={
-	48:'0',
-	49:'1',
-	50:'2',
-	51:'3',
-	52:'4',
-	53:'5',
-	54:'6',
-	55:'7',
-	56:'8',
-	57:'9',
-	65:'a',
-	66:'b',
-	67:'c',
-	68:'d',
-	69:'e',
-	70:'f',
-	71:'g',
-	72:'h',
-	73:'i',
-	74:'j',
-	75:'k',
-	76:'l',
-	77:'m',
-	78:'n',
-	79:'o',
-	80:'p',
-	81:'q',
-	82:'r',
-	83:'s',
-	84:'t',
-	85:'u',
-	86:'v',
-	87:'w',
-	88:'x',
-	89:'y',
-	90:'z',
-	//open bracket	219
-	219:'[',
-	//close bracket	221
-	221:']',
-	
-	};
-	return keys;
+		var keys={
+			48:'0',
+			49:'1',
+			50:'2',
+			51:'3',
+			52:'4',
+			53:'5',
+			54:'6',
+			55:'7',
+			56:'8',
+			57:'9',
+			65:'a',
+			66:'b',
+			67:'c',
+			68:'d',
+			69:'e',
+			70:'f',
+			71:'g',
+			72:'h',
+			73:'i',
+			74:'j',
+			75:'k',
+			76:'l',
+			77:'m',
+			78:'n',
+			79:'o',
+			80:'p',
+			81:'q',
+			82:'r',
+			83:'s',
+			84:'t',
+			85:'u',
+			86:'v',
+			87:'w',
+			88:'x',
+			89:'y',
+			90:'z',
+			//open bracket	219
+			219:'[',
+			//close bracket	221
+			221:']',
+			
+		};
+		return keys;
 	}
 	function translateKeyChar(keynum){
-	//обратный перевод - из буквы в число
-	var arrkeys=swapObj(getKeysArr());
-	var result='';
-	if (keynum in arrkeys){
-	result=arrkeys[keynum];
-	}
+		//обратный перевод - из буквы в число
+		var arrkeys=swapObj(getKeysArr());
+		var result='';
+		if (keynum in arrkeys){
+			result=arrkeys[keynum];
+		}
 	return result;	}
 	function translateKeyNum(keynum){
-	//перевод клавиш из номера в строку
-	var arrkeys=getKeysArr();
-	var result='';
-	if (keynum in arrkeys){
-	result=arrkeys[keynum];
-	}
-	return result;
+		//перевод клавиш из номера в строку
+		var arrkeys=getKeysArr();
+		var result='';
+		if (keynum in arrkeys){
+			result=arrkeys[keynum];
+		}
+		return result;
 	}
 	function setBaseHref() {
-	let base = document.querySelector('base');
-	const isGitHub = window.location.host.includes('github.io');
-	const repoName = window.location.pathname.split('/')[1] || '';
-	if (isGitHub && repoName){
-	let base = document.createElement('base');
-	base.href = `/${repoName}/`;
-	document.head.prepend(base);
-	}
+		let base = document.querySelector('base');
+		const isGitHub = window.location.host.includes('github.io');
+		const repoName = window.location.pathname.split('/')[1] || '';
+		if (isGitHub && repoName){
+			let base = document.createElement('base');
+			base.href = `/${repoName}/`;
+			document.head.prepend(base);
+		}
 	}
 	function detectMob() {
-	return ( ( window.innerWidth <= 800 ));
+		return ( ( window.innerWidth <= 800 ));
 	}
-	});																									
+});																									
